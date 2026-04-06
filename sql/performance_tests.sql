@@ -1,12 +1,15 @@
 USE company_dba;
 
-EXPLAIN ANALYZE SELECT * FROM employees where dept_id=1;
+-- Remove index if exists (for clean test)
+DROP INDEX idx_dept ON employees;
 
-SELECT * FROM employees where dept_id=1;
+-- BEFORE INDEX TEST
+EXPLAIN ANALYZE
+SELECT * FROM employees WHERE dept_id=1;
 
-SHOW profiles;
-
+-- CREATE INDEX
 CREATE INDEX idx_dept ON employees(dept_id);
 
-EXPLAIN ANALYZE SELECT * from employees WHERE dept_id=1;
-
+-- AFTER INDEX TEST
+EXPLAIN ANALYZE
+SELECT * FROM employees WHERE dept_id=1;
