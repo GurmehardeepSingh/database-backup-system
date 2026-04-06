@@ -1,17 +1,35 @@
 #!/bin/bash
 
-DATE=$(date +%F)
-LOGFILE="../logs/backup.log"
+# Database backup automation script
+# Purpose: Backup MySQL DB with logging and retention
 
-echo "Backup started at $(date)" >> $LOGFILE
+DB_NAME="company_dba"
+USER="root"
 
-mysqldump -u root -p company_dba > ../backups/backup_$DATE.sql
+DATE=$(date +%F_%H-%M-%S)
 
-if [$? -eq 0]
+BACKUP_DIR="../backups"
+LOG_DIR="../logs"
+LOG_FILE="../logs/backup.log"
+
+# Create folders if missing
+mkdir -p $BACKUP_DIR
+mkdir -p $LOG_DIR
+
+echo "Backup started at $(date)" >> $LOG_FILE
+
+mysqldump -u $USER -p $DB_NAME > $BACKUP_DIR/backup_$DATE.sql
+
+if [ $? -eq 0 ]
 then
-	echo "Backup successful at %(date)" >> $LOGFILE
+    echo "Backup SUCCESS at $(date)" >> $LOG_FILE
 else
-	 echo "Backup failed at %(date)" >> $LOGFILE
+    echo "Backup FAILED at $(date)" >> $LOG_FILE
 fi
 
-echo "Backup end"
+# Delete backups older than 7 days
+find $BACKUP_DIR -type f -mtime +7 -delete
+
+echo "Old backups cleaned at $(date)" >> $LOG_FILE
+
+echo "Backup finished"
